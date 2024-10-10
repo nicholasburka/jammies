@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jammies</title>
+    <link href="tailwind.css" rel="stylesheet">
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>-->
+    <style>
+        body {
+            padding-bottom: 20vh; /* Adjust for player height */
+        }
+        #siteWidePlayer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100vw;
+            height: 20vh;
+            background-color: white;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000; /* Ensure it's above other content */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2vw; /* Add some horizontal padding */
+        }
+        #playerContainer {
+            width: 76vw; /* 76% of viewport width for the player */
+        }
+        #audioPlayer {
+            width: 100%;
+            height: 40px;
+        }
+        .playerButton {
+            width: 10vw; /* 10% of viewport width for each button */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-full">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-4 text-center">The Jammies - Nov 15</h1>
+        <h2 id="showTheme" class="text-3xl font-semibold mb-8 text-center text-indigo-600"></h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Quick Links</h2>
+                <ul class="list-disc list-inside">
+                    <!--<li><a href="#" class="text-blue-500 hover:underline">Band Calendar</a></li>-->
+                    <li><a href="https://docs.google.com/document/d/1KdFzOtL27YyY50J4vhbJF20ELGF1-VdcaE858DsQAck/" class="text-blue-500 hover:underline" target="_blank">Draft Band Run of Show</a></li>
+                    <!--<li><a href="#" class="text-blue-500 hover:underline">Contact Info</a></li>-->
+                </ul>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-4">Setlist</h2>
+                <div id="setlist"></div>
+            </div>
+        </div>
+
+        <div id="songSections"></div>
+    </div>
+
+    <div id="siteWidePlayer">
+        <button id="prevButton" onclick="playPreviousSong()" class="playerButton bg-blue-500 text-white px-4 py-2 rounded">Previous</button>
+        <div id="playerContainer">
+            <div id="nowPlaying" class="text-lg font-semibold mb-2 text-center"></div>
+            <audio id="audioPlayer" controls></audio>
+        </div>
+        <button id="nextButton" onclick="playNextSong()" class="playerButton bg-blue-500 text-white px-4 py-2 rounded">Next</button>
+    </div>
+
+    <script>
+        const showTheme = "Happy Belated Anniversary"; // Update this for each show
+        let allSongs = [];
+        let currentSongIndex = 0;
+        const audioPlayer = document.getElementById('audioPlayer');
+        const nowPlaying = document.getElementById('nowPlaying');
+
+        function formatNotes(notes) {
+            if (!notes) return '';
+            const items = notes.split(/\s*-\s*/).filter(item => item.trim() !== '');
+            if (items.length > 1) {
+                return `<ul class="list-disc list-inside mt-2 text-sm text-gray-600">
+                    ${items.map(item => `<li>${item}</li>`).join('')}
+                </ul>`;
+            }
+            return `<p class="mt-2 text-sm text-gray-600">${notes}</p>`;
+        }
+
+        function createSongElement(song, section, index) {
+            return `
+                <div class="mb-4">
+                    <h3 class="text-xl font-medium">${song.title}</h3>
+                    <button onclick="playSong(${index})" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">Play</button>
+                    <div class="mt-2">
+                        <a href="audio/${section}/${song.file}.mp3" download class="text-blue-500 hover:underline mr-4">Download MP3</a>
+                        ${song.sheet_music ? `<a href="sheets/${section}/${song.file}.pdf" download class="text-blue-500 hover:underline">Download Sheet Music (PDF)</a>` : ''}
+                    </div>
+                    ${formatNotes(song.notes)}
+                </div>
+            `;
+        }
+
+        function populateSetlist(songData) {
+            const setlist = document.getElementById('setlist');
+            allSongs = [];
+            for (const section in songData) {
+                allSongs = allSongs.concat(songData[section].map(song => ({...song, section})));
+            }
+            setlist.innerHTML = `
+                <ol class="list-decimal list-inside">
+                    ${allSongs.map((song, index) => `
+                        <li>
+                            <button onclick="playSong(${index})" class="text-blue-500 hover:underline">${song.title}</button>
+                            ${formatNotes(song.notes)}
+                        </li>
+                    `).join('')}
+                </ol>
+            `;
+        }
+
+        function populateSongSections(songData) {
+            const songSections = document.getElementById('songSections');
+            songSections.innerHTML = ''; // Clear existing content
+            let globalIndex = 0;
+            for (const section in songData) {
+                const sectionElement = document.createElement('div');
+                sectionElement.className = 'mb-8 bg-white p-6 rounded-lg shadow-md';
+                sectionElement.innerHTML = `
+                    <h2 class="text-2xl font-semibold mb-4 capitalize">${section}</h2>
+                    <div class="space-y-4">
+                        ${songData[section].map(song => createSongElement(song, section, globalIndex++)).join('')}
+                    </div>
+                `;
+                songSections.appendChild(sectionElement);
+            }
+        }
+
+        function playSong(index) {
+            currentSongIndex = index;
+            const song = allSongs[index];
+            audioPlayer.src = `audio/${song.section}/${song.file}.mp3`;
+            audioPlayer.play();
+            nowPlaying.textContent = `Now Playing: ${song.title}`;
+            updateNavigationButtons();
+        }
+
+        function playNextSong() {
+            if (currentSongIndex < allSongs.length - 1) {
+                playSong(currentSongIndex + 1);
+            }
+        }
+
+        function playPreviousSong() {
+            if (currentSongIndex > 0) {
+                playSong(currentSongIndex - 1);
+            }
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevButton').disabled = currentSongIndex === 0;
+            document.getElementById('nextButton').disabled = currentSongIndex === allSongs.length - 1;
+        }
+
+        audioPlayer.addEventListener('ended', playNextSong);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('showTheme').textContent = showTheme;
+            
+            // Fetch the song data from songs.json
+            fetch('songs.json')
+                .then(response => response.json())
+                .then(songData => {
+                    populateSetlist(songData);
+                    //populateSongSections(songData);
+                    updateNavigationButtons();
+                })
+                .catch(error => console.error('Error loading song data:', error));
+        });
+    </script>
+</body>
+</html>

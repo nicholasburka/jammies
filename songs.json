@@ -1,0 +1,35 @@
+{
+  "music set": [
+    {
+      "title": "Time'S A Wastin' ~ Erykah Badu [ Ezmp3.Cc ]",
+      "file": "01 Time's A Wastin' ~ Erykah Badu [ ezmp3.cc ]",
+      "sheet_music": false,
+      "notes": "Full song form: Intro, then repeat x2: Verse/Chorus \n('Livin' in the \nworld')/B section (at 3:15 'oh... baby...').- Ideas: -One solo over chorus, one solo over B section -Can give one instrument the string line? -After second B section, we go right into Soulful (next song)"
+    },
+    {
+      "title": "Jon Batiste & Friends (Live) - Soulful (By Roy Hargrove)",
+      "file": "02 Jon Batiste & Friends (Live) - Soulful (by Roy Hargrove)",
+      "sheet_music": false,
+      "notes": ""
+    },
+    {
+      "title": "Jon Batiste & Friends (Live) - Soulful Vamp",
+      "file": "03 Jon Batiste & Friends (Live) - Soulful Vamp",
+      "sheet_music": false,
+      "notes": "Introduce the band while Ethan strums."
+    },
+    {
+      "title": "Jon Batiste & Friends (Live) - Ordr",
+      "file": "04 Jon Batiste & Friends (Live) - ORDR",
+      "sheet_music": false,
+      "notes": "Need horn harmonies. - Trombone intro (Ben)? Meaning \neither Ben fully plays trombone as bass whole show, or brings trombone as \nwell."
+    }
+  ],
+  "comedy": [
+    {
+      "file": "The Hustle",
+      "title": "(COMEDY SET) The Hustle - Van McCoy",
+      "sheet_music": false
+    }
+  ]
+}
